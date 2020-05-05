@@ -91,3 +91,6 @@ build/
 
 # Flutter/Dart/Pub related
 /build/
+/lib/utlities/app_secrets.dart
+/ios/Runner/GoogleService-Info.plist
+/android/app/google-services.json
