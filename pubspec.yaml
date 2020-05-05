@@ -1,0 +1,24 @@
+name: find_my_tennis
+
+environment:
+  sdk: ">=2.5.2 <3.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  cupertino_icons: ^0.1.3
+  cloud_firestore: ^0.13.5
+  firebase_auth: ^0.16.0
+
+#  maps
+  google_maps_flutter: ^0.5.27
+  google_maps_webservice: ^0.0.16
+  flutter_google_places: ^0.2.5
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+flutter:
+  uses-material-design: true
