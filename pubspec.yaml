@@ -14,10 +14,11 @@ dependencies:
   rxdart: 0.23.1
 
 #  maps
-  google_maps_flutter: ^0.5.27
+  google_maps_flutter: ^0.5.27+1
   google_maps_webservice: ^0.0.16
   flutter_google_places: 0.2.4
   geoflutterfire: ^2.1.0
+  location: ^3.0.2
 
 
 dev_dependencies:

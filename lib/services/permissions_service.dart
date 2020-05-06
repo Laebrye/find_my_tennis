@@ -25,8 +25,7 @@ class PermissionsService {
   }
 
   Future<bool> _hasPermission(Permission permission) async {
-    PermissionStatus result =
-        await permission.status;
+    PermissionStatus result = await permission.status;
     return (result == PermissionStatus.granted);
   }
 
@@ -42,12 +41,10 @@ class PermissionsService {
     return granted;
   }
 
-
   void _onPermissionDenied(
     Permission permission,
     bool isRequired,
   ) {
     // TODO: redefine how denied permissions are handled
-    
   }
 }

@@ -6,6 +6,10 @@ class FirestoreService {
 
   static final instance = FirestoreService._();
 
+  CollectionReference collectionReference(String path) {
+    return Firestore.instance.collection(path);
+  }
+
   Future<String> addData({
     @required String collectionPath,
     @required Map<String, dynamic> data,

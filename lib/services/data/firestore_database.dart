@@ -6,6 +6,8 @@ import 'package:find_my_tennis/services/data/models/tennis_location.dart';
 import 'package:find_my_tennis/utlities/api_path.dart';
 import 'package:flutter/services.dart';
 import 'package:geoflutterfire/geoflutterfire.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:rxdart/rxdart.dart';
 
 abstract class Database {
   Future<String> addTennisLocation(TennisLocation tennisLocation);
@@ -13,7 +15,8 @@ abstract class Database {
   Future<String> addTennisClub(TennisClub tennisClub);
   Future<void> setTennisClub(TennisClub tennisClub, {bool merge});
   Stream<List<TennisLocation>> tennisLocationsListStream();
-  Stream<List<TennisLocation>> tennisLocationsByDistanceStream();
+  Stream<List<TennisLocation>> tennisLocationsByDistanceStream(
+      BehaviorSubject<LatLng> queryCentreSubject);
   Stream<List<TennisClub>> tennisClubsListStream(
       {TennisLocation tennisLocation});
 }
@@ -115,13 +118,49 @@ class FirestoreDatabase implements Database {
   @override
   Stream<List<TennisClub>> tennisClubsListStream(
       {TennisLocation tennisLocation}) {
-    // TODO: implement tennisClubsListStream
-    throw UnimplementedError();
+    return _service.collectionStream<TennisClub>(
+      path: APIPath.tennisClubs(),
+      queryBuilder: tennisLocation != null
+          ? (query) => query.where('locationId', isEqualTo: tennisLocation.id)
+          : null,
+      builder: (data, documentID) => TennisClub.fromMap(data: data, id: documentID),
+    );
   }
 
   @override
-  Stream<List<TennisLocation>> tennisLocationsByDistanceStream() {
-    // TODO: implement tennisLocationsByDistanceStream
-    throw UnimplementedError();
+  Stream<List<TennisLocation>> tennisLocationsByDistanceStream(
+      BehaviorSubject<LatLng> queryCentreSubject) {
+    if (queryCentreSubject == null) {
+      throw PlatformException(
+          code: 'UNKNOWN_QUERY_CENTRE',
+          message:
+              'queryCentreSubject is null. PLease ensure a suitable Behavior Subject containing an object with Lat & Lng attributes is passed to the tennisLocationsByDistanceStream method');
+    }
+    return queryCentreSubject.switchMap(
+      (LatLng value) => _geo
+          .collection(
+            collectionRef: _service.collectionReference(
+              APIPath.tennisLocations(),
+            ),
+          )
+          .within(
+            center: _geo.point(
+                latitude: value.latitude, longitude: value.longitude),
+            radius: 8.0,
+            field: 'position',
+            strictMode: true,
+          )
+          .map<List<TennisLocation>>(
+            (event) => event
+                .map<TennisLocation>(
+                  (e) => TennisLocation.fromMap(
+                    data: e.data,
+                    id: e.documentID,
+                  ),
+                )
+                .toList(),
+          )
+          .shareValue(),
+    );
   }
 }
