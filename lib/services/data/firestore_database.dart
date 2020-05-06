@@ -4,6 +4,7 @@ import 'package:find_my_tennis/services/data/firestore_service.dart';
 import 'package:find_my_tennis/services/data/models/tennis_club.dart';
 import 'package:find_my_tennis/services/data/models/tennis_location.dart';
 import 'package:find_my_tennis/utlities/api_path.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:geoflutterfire/geoflutterfire.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -15,15 +16,19 @@ abstract class Database {
   Future<String> addTennisClub(TennisClub tennisClub);
   Future<void> setTennisClub(TennisClub tennisClub, {bool merge});
   Stream<List<TennisLocation>> tennisLocationsListStream();
-  Stream<List<TennisLocation>> tennisLocationsByDistanceStream(
-      BehaviorSubject<LatLng> queryCentreSubject);
+  Stream<List<TennisLocation>> tennisLocationsByDistanceStream();
   Stream<List<TennisClub>> tennisClubsListStream(
       {TennisLocation tennisLocation});
+  void updateQueryCentre({LatLng newCentre});
 }
 
 class FirestoreDatabase implements Database {
   FirestoreDatabase({this.uid});
   final String uid;
+
+  final BehaviorSubject<LatLng> _queryCentreSubject = BehaviorSubject.seeded(
+    LatLng(51.4183, -0.2206),
+  );
 
   final FirestoreService _service = FirestoreService.instance;
   final Geoflutterfire _geo = Geoflutterfire();
@@ -33,6 +38,11 @@ class FirestoreDatabase implements Database {
   static const String overwriteAction = 'overwrite a';
   static const String tennisClubString = 'Tennis Club';
   static const String tennisLocationString = 'Tennis Location';
+
+  @override
+  void updateQueryCentre({@required LatLng newCentre}) {
+    _queryCentreSubject.add(newCentre);
+  }
 
   @override
   Future<String> addTennisClub(TennisClub tennisClub) {
@@ -123,20 +133,20 @@ class FirestoreDatabase implements Database {
       queryBuilder: tennisLocation != null
           ? (query) => query.where('locationId', isEqualTo: tennisLocation.id)
           : null,
-      builder: (data, documentID) => TennisClub.fromMap(data: data, id: documentID),
+      builder: (data, documentID) =>
+          TennisClub.fromMap(data: data, id: documentID),
     );
   }
 
   @override
-  Stream<List<TennisLocation>> tennisLocationsByDistanceStream(
-      BehaviorSubject<LatLng> queryCentreSubject) {
-    if (queryCentreSubject == null) {
+  Stream<List<TennisLocation>> tennisLocationsByDistanceStream() {
+    if (_queryCentreSubject == null) {
       throw PlatformException(
           code: 'UNKNOWN_QUERY_CENTRE',
           message:
               'queryCentreSubject is null. PLease ensure a suitable Behavior Subject containing an object with Lat & Lng attributes is passed to the tennisLocationsByDistanceStream method');
     }
-    return queryCentreSubject.switchMap(
+    return _queryCentreSubject.switchMap(
       (LatLng value) => _geo
           .collection(
             collectionRef: _service.collectionReference(

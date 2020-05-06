@@ -1,7 +1,8 @@
+import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
 import 'package:google_maps_webservice/places.dart';
 
-class TennisLocation {
+class TennisLocation extends Equatable {
   static const latKey = 'lat';
   static const lngKey = 'lng';
   static const nameKey = 'name';
@@ -102,4 +103,16 @@ class TennisLocation {
       isVisible.hashCode ^
       updatedByUser.hashCode ^
       placesId.hashCode;
+
+  @override
+  List<Object> get props => [
+        id,
+        lat,
+        lng,
+        name,
+        numberOfClubs,
+        isVisible,
+        updatedByUser,
+        placesId,
+      ];
 }

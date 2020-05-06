@@ -1,6 +1,7 @@
+import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
 
-class TennisClub {
+class TennisClub extends Equatable {
   static const nameKey = 'name';
   static const locationIdKey = 'locationId';
 
@@ -48,4 +49,7 @@ class TennisClub {
 
   @override
   int get hashCode => id.hashCode ^ name.hashCode ^ locationId.hashCode;
+
+  @override
+  List<Object> get props => [id, name, locationId];
 }
