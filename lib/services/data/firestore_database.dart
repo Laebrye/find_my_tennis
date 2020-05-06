@@ -81,6 +81,12 @@ class FirestoreDatabase implements Database {
         message: '$errorMessage $throwAction $tennisClubString',
       );
     }
+    if (tennisClub.id == null) {
+      return _service.addData(
+        collectionPath: APIPath.tennisClubs(),
+        data: tennisClub.toMap(),
+      );
+    }
     return _service.setData(
       path: APIPath.tennisClub(tennisClub.id),
       data: tennisClub.toMap(),
@@ -107,6 +113,12 @@ class FirestoreDatabase implements Database {
     Map<String, dynamic> data = tennisLocation.toMap();
     data.putIfAbsent('position', () => tennisLocationGeo.data);
 
+    if (tennisLocation.id == null) {
+      return _service.addData(
+        collectionPath: APIPath.tennisLocations(),
+        data: tennisLocation.toMap(),
+      );
+    }
     return _service.setData(
       path: APIPath.tennisLocation(tennisLocation.id),
       data: data,

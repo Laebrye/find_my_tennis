@@ -67,6 +67,28 @@ class TennisLocation extends Equatable {
     };
   }
 
+  TennisLocation copyWith({
+    String id,
+    double lat,
+    double lng,
+    String name,
+    int numberOfClubs,
+    bool isVisible,
+    String updatedByUser,
+    String placesId,
+  }) {
+    return TennisLocation(
+      id: id ?? this.id,
+      lat: lat ?? this.lat,
+      lng: lng ?? this.lng,
+      name: name ?? this.name,
+      numberOfClubs: numberOfClubs ?? this.numberOfClubs,
+      isVisible: isVisible ?? this.isVisible,
+      updatedByUser: updatedByUser ?? this.updatedByUser,
+      placesId: placesId ?? this.placesId,
+    );
+  }
+
   @override
   String toString() {
     return 'TennisLocation{id: $id,'

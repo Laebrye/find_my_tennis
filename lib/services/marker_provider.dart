@@ -7,10 +7,12 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:rxdart/rxdart.dart';
 
 class MarkerProvider {
-  MarkerProvider._();
+  MarkerProvider._(this.context);
 
-  static final instance = MarkerProvider._();
+  factory MarkerProvider.instance(BuildContext context) =>
+      MarkerProvider._(context);
 
+  final BuildContext context;
   BitmapDescriptor _markerBitmap;
 
   final BehaviorSubject<BitmapDescriptor> _markerBitmapSubject =
@@ -18,15 +20,15 @@ class MarkerProvider {
   Stream<BitmapDescriptor> get markerBitmapStream =>
       _markerBitmapSubject.stream.distinct();
 
-  Future<void> createBitmap(BuildContext context) async {
+  Future<void> createBitmap() async {
     if (_markerBitmap == null) {
-      _markerBitmap = await _getAssetIcon(context);
+      _markerBitmap = await _getAssetIcon();
     }
     _markerBitmapSubject.add(_markerBitmap);
     return _markerBitmap;
   }
 
-  Future<BitmapDescriptor> _getAssetIcon(BuildContext context) async {
+  Future<BitmapDescriptor> _getAssetIcon() async {
     final Completer<BitmapDescriptor> bitmapIcon =
         Completer<BitmapDescriptor>();
     final ImageConfiguration config = createLocalImageConfiguration(context);
