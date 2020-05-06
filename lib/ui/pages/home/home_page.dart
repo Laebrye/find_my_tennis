@@ -21,13 +21,13 @@ class HomePage extends StatefulWidget {
     final placesRepository =
         Provider.of<TennisPlacesRepository>(context, listen: false);
     final markerProvider = Provider.of<MarkerProvider>(context, listen: false);
-    final user = Provider.of<User>(context);
+    final auth = Provider.of<AuthBase>(context);
     return Provider<HomeBloc>(
       create: (_) => HomeBloc(
         database: database,
         placesRepository: placesRepository,
         markerProvider: markerProvider,
-        uid: user?.uid,
+        auth: auth,
       ),
       child: HomePage(),
     );

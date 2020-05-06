@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:equatable/equatable.dart';
+import 'package:find_my_tennis/services/auth.dart';
 import 'package:find_my_tennis/services/data/firestore_database.dart';
 import 'package:find_my_tennis/services/data/models/tennis_location.dart';
 import 'package:find_my_tennis/services/data/tennis_places_repository.dart';
@@ -13,7 +14,7 @@ import 'package:rxdart/rxdart.dart';
 
 class HomeBloc {
   HomeBloc({
-    @required this.uid,
+    @required this.auth,
     @required this.database,
     @required this.placesRepository,
     @required this.markerProvider,
@@ -23,16 +24,18 @@ class HomeBloc {
     _tennisLocationsListStream = database.tennisLocationsByDistanceStream();
     _tennisPlaces = placesRepository.placesSearchResultStream;
     _markerStream = markerProvider.markerBitmapStream;
-    homePageStateStream = Rx.combineLatest4(
+    homePageStateStream = Rx.combineLatest5(
       _tennisLocationsListStream,
       _tennisPlaces,
       _markerStream,
       _mapCentreSubject.stream,
+      auth.onAuthStateChanged,
       (
         List<TennisLocation> tennisLocations,
         List<PlacesSearchResult> placesSearchResults,
         BitmapDescriptor markerBitmap,
         LatLng mapCentre,
+        User user,
       ) {
         // create a locations list with only the visible locations in it
         List<TennisLocation> finalLocations = tennisLocations
@@ -76,11 +79,12 @@ class HomeBloc {
           tennisLocationsList: finalLocations,
           excludedLocationsList: exludedLocations,
           selectedTennisLocation: _selectedLocation,
+          isUserAuthenticated: user != null,
         );
       },
     );
   }
-  final String uid;
+  final AuthBase auth;
   final Database database;
   final TennisPlacesRepository placesRepository;
   final MarkerProvider markerProvider;
@@ -101,7 +105,7 @@ class HomeBloc {
   Future<void> removeLocation({
     @required TennisLocation tennisLocation,
   }) async {
-    if (uid != null && uid.isNotEmpty) {
+    if (await auth.currentUser() != null) {
       tennisLocation = tennisLocation.copyWith(isVisible: false);
       database.setTennisLocation(tennisLocation);
     }
@@ -112,7 +116,7 @@ class HomeBloc {
     @required double lng,
     @required String name,
   }) async {
-    if (uid != null && uid.isNotEmpty) {
+    if (await auth.currentUser() != null) {
       TennisLocation newLocation = TennisLocation(
         lat: lat,
         lng: lng,
@@ -142,12 +146,14 @@ class HomePageState extends Equatable {
   final List<TennisLocation> tennisLocationsList;
   final List<TennisLocation> excludedLocationsList;
   final TennisLocation selectedTennisLocation;
+  final bool isUserAuthenticated;
 
   HomePageState({
     @required this.markerBitmap,
     @required this.tennisLocationsList,
     @required this.excludedLocationsList,
     @required this.selectedTennisLocation,
+    @required this.isUserAuthenticated,
   });
 
   HomePageState copyWith({
@@ -156,6 +162,7 @@ class HomePageState extends Equatable {
     List<TennisLocation> excludedLocationsList,
     TennisLocation selectedLocation,
     bool clearLocation,
+    bool isUserAuthenticated,
   }) {
     return HomePageState(
       markerBitmap: markerBitmap ?? this.markerBitmap,
@@ -165,6 +172,7 @@ class HomePageState extends Equatable {
       selectedTennisLocation: (clearLocation == true)
           ? null
           : selectedLocation ?? this.selectedTennisLocation,
+      isUserAuthenticated: isUserAuthenticated ?? this.isUserAuthenticated,
     );
   }
 
@@ -174,5 +182,6 @@ class HomePageState extends Equatable {
         tennisLocationsList,
         excludedLocationsList,
         selectedTennisLocation,
+        isUserAuthenticated,
       ];
 }

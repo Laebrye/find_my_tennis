@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
+import 'package:rxdart/rxdart.dart';
 
 class User {
   User({
@@ -32,7 +33,7 @@ class Auth implements AuthBase {
 
   @override
   Stream<User> get onAuthStateChanged {
-    return _firebaseAuth.onAuthStateChanged.map(_userFromFirebase);
+    return _firebaseAuth.onAuthStateChanged.map(_userFromFirebase).shareValue();
   }
 
   @override
