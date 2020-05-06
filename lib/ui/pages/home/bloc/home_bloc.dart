@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:equatable/equatable.dart';
 import 'package:find_my_tennis/services/data/firestore_database.dart';
@@ -16,18 +17,22 @@ class HomeBloc {
     @required this.database,
     @required this.placesRepository,
     @required this.markerProvider,
+    this.initialPosition = const LatLng(51.4183, -0.2206),
   }) {
+    _mapCentreSubject = BehaviorSubject<LatLng>.seeded(initialPosition);
     _tennisLocationsListStream = database.tennisLocationsByDistanceStream();
     _tennisPlaces = placesRepository.placesSearchResultStream;
     _markerStream = markerProvider.markerBitmapStream;
-    homePageStateStream = Rx.combineLatest3(
+    homePageStateStream = Rx.combineLatest4(
       _tennisLocationsListStream,
       _tennisPlaces,
       _markerStream,
+      _mapCentreSubject.stream,
       (
         List<TennisLocation> tennisLocations,
         List<PlacesSearchResult> placesSearchResults,
         BitmapDescriptor markerBitmap,
+        LatLng mapCentre,
       ) {
         // create a locations list with only the visible locations in it
         List<TennisLocation> finalLocations = tennisLocations
@@ -57,10 +62,20 @@ class HomeBloc {
         // add the new TennisLocations to the final list and output
         finalLocations.addAll(additionalLocations);
 
+        // identify if a court is currently selected
+        TennisLocation _selectedLocation = null;
+        if (finalLocations.isNotEmpty)
+          finalLocations.forEach((f) {
+            double distance = calculateDistance(
+                f.lat, f.lng, mapCentre.latitude, mapCentre.longitude);
+            if (distance < 0.01) _selectedLocation = f;
+          });
+
         return HomePageState(
           markerBitmap: markerBitmap,
           tennisLocationsList: finalLocations,
           excludedLocationsList: exludedLocations,
+          selectedTennisLocation: _selectedLocation,
         );
       },
     );
@@ -69,6 +84,8 @@ class HomeBloc {
   final Database database;
   final TennisPlacesRepository placesRepository;
   final MarkerProvider markerProvider;
+  BehaviorSubject<LatLng> _mapCentreSubject;
+  final LatLng initialPosition;
 
   Stream<List<TennisLocation>> _tennisLocationsListStream;
   Stream<List<PlacesSearchResult>> _tennisPlaces;
@@ -78,6 +95,7 @@ class HomeBloc {
   void updateMapCentre(LatLng newCentre) {
     database.updateQueryCentre(newCentre: newCentre);
     placesRepository.updateCentre(centre: newCentre);
+    _mapCentreSubject.add(newCentre);
   }
 
   Future<void> removeLocation({
@@ -105,30 +123,48 @@ class HomeBloc {
     }
   }
 
-  void dispose() {}
+  double calculateDistance(double lat1, double lon1, double lat2, double lon2) {
+    var p = 0.017453292519943295;
+    var c = cos;
+    var a = 0.5 -
+        c((lat2 - lat1) * p) / 2 +
+        c(lat1 * p) * c(lat2 * p) * (1 - c((lon2 - lon1) * p)) / 2;
+    return 12742 * asin(sqrt(a));
+  }
+
+  void dispose() {
+    _mapCentreSubject.close();
+  }
 }
 
 class HomePageState extends Equatable {
   final BitmapDescriptor markerBitmap;
   final List<TennisLocation> tennisLocationsList;
   final List<TennisLocation> excludedLocationsList;
+  final TennisLocation selectedTennisLocation;
 
   HomePageState({
     @required this.markerBitmap,
     @required this.tennisLocationsList,
     @required this.excludedLocationsList,
+    @required this.selectedTennisLocation,
   });
 
   HomePageState copyWith({
     BitmapDescriptor markerBitmap,
     List<TennisLocation> tennisLocationsList,
     List<TennisLocation> excludedLocationsList,
+    TennisLocation selectedLocation,
+    bool clearLocation,
   }) {
     return HomePageState(
       markerBitmap: markerBitmap ?? this.markerBitmap,
       tennisLocationsList: tennisLocationsList ?? this.tennisLocationsList,
       excludedLocationsList:
           excludedLocationsList ?? this.excludedLocationsList,
+      selectedTennisLocation: (clearLocation == true)
+          ? null
+          : selectedLocation ?? this.selectedTennisLocation,
     );
   }
 
@@ -137,5 +173,6 @@ class HomePageState extends Equatable {
         markerBitmap,
         tennisLocationsList,
         excludedLocationsList,
+        selectedTennisLocation,
       ];
 }

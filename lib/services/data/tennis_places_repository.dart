@@ -8,6 +8,14 @@ import 'package:google_maps_webservice/places.dart';
 import 'package:rxdart/rxdart.dart';
 
 class TennisPlacesRepository {
+  TennisPlacesRepository({
+    this.initialCentre = const LatLng(51.4183, -0.2206),
+  }) {
+    updateCentre(centre: initialCentre);
+  }
+
+  final LatLng initialCentre;
+
   BehaviorSubject<List<PlacesSearchResult>> _placesSearchResultSubject =
       BehaviorSubject<List<PlacesSearchResult>>.seeded([]);
 
