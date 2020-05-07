@@ -36,6 +36,7 @@ class TennisLocationCard extends StatelessWidget {
             padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
             height: 80.0,
             child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: <Widget>[
                 Expanded(
                   child: Align(
@@ -49,6 +50,12 @@ class TennisLocationCard extends StatelessWidget {
                           color: Colors.blue.shade900),
                     ),
                   ),
+                ),
+                Column(
+                  children: <Widget>[
+                    Text(tennisLocation.numberOfClubs?.toString() ?? '0'),
+                    Text('clubs'),
+                  ],
                 ),
               ],
             ),
