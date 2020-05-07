@@ -6,7 +6,6 @@ import 'package:rxdart/rxdart.dart';
 
 import 'email_sign_in_model.dart';
 
-
 class EmailSignInBloc {
   EmailSignInBloc({@required this.auth});
   final AuthBase auth;

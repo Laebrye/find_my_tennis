@@ -6,8 +6,9 @@ import 'package:find_my_tennis/services/data/firestore_database.dart';
 import 'package:find_my_tennis/services/data/models/tennis_location.dart';
 import 'package:find_my_tennis/services/data/tennis_places_repository.dart';
 import 'package:find_my_tennis/services/marker_provider.dart';
-import 'package:find_my_tennis/ui/pages/home/bloc/home_bloc.dart';
+import 'package:find_my_tennis/ui/pages/home/home_bloc.dart';
 import 'package:find_my_tennis/ui/pages/home/tennis_location_card.dart';
+import 'package:find_my_tennis/ui/pages/tennis_location_details/tennis_location_details_page.dart';
 import 'package:find_my_tennis/utlities/app_secrets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_google_places/flutter_google_places.dart';
@@ -88,6 +89,10 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  Future<void> _navigateToLocationDetails(BuildContext context) async {
+    await Navigator.of(context).pushNamed(TennisLocationDetailsPage.id);
+  }
+
   Future<void> _onMapCreated(GoogleMapController controller) async {
     _mapController = controller;
 
@@ -147,9 +152,10 @@ class _HomePageState extends State<HomePage> {
                   tennisLocationsList[index].placesId ==
                       homePageState.selectedTennisLocation.placesId;
               return TennisLocationCard(
-                onTapCallBack: _animateToLocation,
+                onLocationTapCallBack: _animateToLocation,
                 tennisLocation: tennisLocationsList[index],
                 isSelected: selected,
+                onTapCallback: () => _navigateToLocationDetails(context),
               );
             },
             shrinkWrap: true,
