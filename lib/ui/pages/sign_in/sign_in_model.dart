@@ -2,30 +2,28 @@ import 'dart:ui';
 
 import 'package:find_my_tennis/ui/pages/sign_in/validators.dart';
 
-enum EmailSignInFormType { signIn, register }
+enum SignInFormType { signIn, register }
 
-class EmailSignInModel with EmailAndPasswordValidators {
-  EmailSignInModel({
+class SignInModel with EmailAndPasswordValidators {
+  SignInModel({
     this.email = '',
     this.password = '',
-    this.formType = EmailSignInFormType.signIn,
+    this.formType = SignInFormType.signIn,
     this.isLoading = false,
     this.submitted = false,
   });
   final String email;
   final String password;
-  final EmailSignInFormType formType;
+  final SignInFormType formType;
   final bool isLoading;
   final bool submitted;
 
   String get primaryButtonText {
-    return formType == EmailSignInFormType.signIn
-        ? 'Sign in'
-        : 'Create an account';
+    return formType == SignInFormType.signIn ? 'Sign in' : 'Create an account';
   }
 
   String get secondaryButtonText {
-    return formType == EmailSignInFormType.signIn
+    return formType == SignInFormType.signIn
         ? 'Need an account? Register'
         : 'Have an account? Sign in';
   }
@@ -46,14 +44,14 @@ class EmailSignInModel with EmailAndPasswordValidators {
     return showErrorText ? invalidEmailErrorText : null;
   }
 
-  EmailSignInModel copyWith({
+  SignInModel copyWith({
     String email,
     String password,
-    EmailSignInFormType formType,
+    SignInFormType formType,
     bool isLoading,
     bool submitted,
   }) {
-    return EmailSignInModel(
+    return SignInModel(
       email: email ?? this.email,
       password: password ?? this.password,
       formType: formType ?? this.formType,
@@ -70,7 +68,7 @@ class EmailSignInModel with EmailAndPasswordValidators {
   bool operator ==(dynamic other) {
     if (identical(this, other)) return true;
     if (runtimeType != other.runtimeType) return false;
-    final EmailSignInModel otherModel = other as EmailSignInModel;
+    final SignInModel otherModel = other as SignInModel;
     return email == otherModel.email &&
         password == otherModel.password &&
         formType == otherModel.formType &&

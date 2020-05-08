@@ -17,7 +17,7 @@ class TennisLocationDetailsPage extends StatelessWidget {
     );
   }
 
-  static const String id = 'tennis_location_details';
+  static const String id = 'tennis_location_details_page';
 
   @override
   Widget build(BuildContext context) {

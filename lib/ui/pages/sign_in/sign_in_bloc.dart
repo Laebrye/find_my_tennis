@@ -4,26 +4,25 @@ import 'package:find_my_tennis/services/auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:rxdart/rxdart.dart';
 
-import 'email_sign_in_model.dart';
+import 'sign_in_model.dart';
 
-class EmailSignInBloc {
-  EmailSignInBloc({@required this.auth});
+class SignInBloc {
+  SignInBloc({@required this.auth});
   final AuthBase auth;
-  final _modelSubject =
-      BehaviorSubject<EmailSignInModel>.seeded(EmailSignInModel());
+  final _modelSubject = BehaviorSubject<SignInModel>.seeded(SignInModel());
 
-  Stream<EmailSignInModel> get modelStream => _modelSubject.stream;
+  Stream<SignInModel> get modelStream => _modelSubject.stream;
 
-  EmailSignInModel get _model => _modelSubject.value;
+  SignInModel get _model => _modelSubject.value;
 
   void dispose() {
     _modelSubject.close();
   }
 
   void toggleFormType() {
-    final formType = _model.formType == EmailSignInFormType.signIn
-        ? EmailSignInFormType.register
-        : EmailSignInFormType.signIn;
+    final formType = _model.formType == SignInFormType.signIn
+        ? SignInFormType.register
+        : SignInFormType.signIn;
     updateWith(
       email: '',
       password: '',
@@ -40,7 +39,7 @@ class EmailSignInBloc {
   void updateWith({
     String email,
     String password,
-    EmailSignInFormType formType,
+    SignInFormType formType,
     bool isLoading,
     bool submitted,
   }) {
@@ -58,7 +57,7 @@ class EmailSignInBloc {
   Future<void> submit() async {
     updateWith(isLoading: true, submitted: true);
     try {
-      if (_model.formType == EmailSignInFormType.signIn) {
+      if (_model.formType == SignInFormType.signIn) {
         await auth.signInWithEmailAndPassword(
           _model.email,
           _model.password,

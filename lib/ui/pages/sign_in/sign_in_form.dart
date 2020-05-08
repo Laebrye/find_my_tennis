@@ -5,31 +5,30 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
-import 'email_sign_in_bloc.dart';
-import 'email_sign_in_model.dart';
+import 'sign_in_bloc.dart';
+import 'sign_in_model.dart';
 
-class EmailSignInFormBlocBased extends StatefulWidget {
-  EmailSignInFormBlocBased({@required this.bloc});
+class SignInForm extends StatefulWidget {
+  SignInForm({@required this.bloc});
 
-  final EmailSignInBloc bloc;
+  final SignInBloc bloc;
 
   static Widget create(BuildContext context) {
     final AuthBase auth = Provider.of<AuthBase>(context);
-    return Provider<EmailSignInBloc>(
-      create: (context) => EmailSignInBloc(auth: auth),
+    return Provider<SignInBloc>(
+      create: (context) => SignInBloc(auth: auth),
       dispose: (context, bloc) => bloc.dispose(),
-      child: Consumer<EmailSignInBloc>(
-        builder: (context, bloc, _) => EmailSignInFormBlocBased(bloc: bloc),
+      child: Consumer<SignInBloc>(
+        builder: (context, bloc, _) => SignInForm(bloc: bloc),
       ),
     );
   }
 
   @override
-  _EmailSignInFormBlocBasedState createState() =>
-      _EmailSignInFormBlocBasedState();
+  _SignInFormState createState() => _SignInFormState();
 }
 
-class _EmailSignInFormBlocBasedState extends State<EmailSignInFormBlocBased> {
+class _SignInFormState extends State<SignInForm> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final FocusNode _emailFocusNode = FocusNode();
@@ -54,7 +53,7 @@ class _EmailSignInFormBlocBasedState extends State<EmailSignInFormBlocBased> {
     }
   }
 
-  List<Widget> _buildChildren(EmailSignInModel model) {
+  List<Widget> _buildChildren(SignInModel model) {
     return [
       _buildEmailTextField(model),
       SizedBox(height: 8.0),
@@ -72,7 +71,7 @@ class _EmailSignInFormBlocBasedState extends State<EmailSignInFormBlocBased> {
     ];
   }
 
-  TextField _buildPasswordTextField(EmailSignInModel model) {
+  TextField _buildPasswordTextField(SignInModel model) {
     return TextField(
       controller: _passwordController,
       focusNode: _passwordFocusNode,
@@ -88,14 +87,14 @@ class _EmailSignInFormBlocBasedState extends State<EmailSignInFormBlocBased> {
     );
   }
 
-  void _emailEditingComplete(EmailSignInModel model) {
+  void _emailEditingComplete(SignInModel model) {
     final newFocus = model.emailValidator.isValid(model.email)
         ? _passwordFocusNode
         : _emailFocusNode;
     FocusScope.of(context).requestFocus(newFocus);
   }
 
-  TextField _buildEmailTextField(EmailSignInModel model) {
+  TextField _buildEmailTextField(SignInModel model) {
     return TextField(
       controller: _emailController,
       autocorrect: false,
@@ -115,11 +114,11 @@ class _EmailSignInFormBlocBasedState extends State<EmailSignInFormBlocBased> {
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder<EmailSignInModel>(
+    return StreamBuilder<SignInModel>(
         stream: widget.bloc.modelStream,
-        initialData: EmailSignInModel(),
+        initialData: SignInModel(),
         builder: (context, snapshot) {
-          final EmailSignInModel model = snapshot.data;
+          final SignInModel model = snapshot.data;
           return Padding(
             padding: const EdgeInsets.all(16.0),
             child: Column(

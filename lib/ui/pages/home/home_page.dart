@@ -34,6 +34,8 @@ class HomePage extends StatefulWidget {
     );
   }
 
+  static const String id = 'home_page';
+
   @override
   _HomePageState createState() => _HomePageState();
 }
