@@ -1,5 +1,6 @@
 import 'package:find_my_tennis/services/auth.dart';
 import 'package:find_my_tennis/services/data/firestore_database.dart';
+import 'package:find_my_tennis/services/data/tennis_places_repository.dart';
 import 'package:find_my_tennis/services/location_service.dart';
 import 'package:find_my_tennis/services/marker_provider.dart';
 import 'package:find_my_tennis/services/permissions_service.dart';
@@ -16,7 +17,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        Provider<Auth>(
+        Provider<AuthBase>(
           create: (_) => Auth(),
         ),
         Provider<PermissionsService>(
@@ -33,8 +34,13 @@ class MyApp extends StatelessWidget {
           create: (context) => MarkerProvider.instance(context),
           lazy: false,
         ),
-        Provider<FirestoreDatabase>(
+        Provider<Database>(
           create: (_) => FirestoreDatabase(),
+        ),
+        Provider<TennisPlacesRepository>(
+          create: (BuildContext context) {
+            return TennisPlacesRepository();
+          },
         ),
       ],
       child: MaterialApp(
@@ -44,7 +50,7 @@ class MyApp extends StatelessWidget {
           HomePage.id: (context) => HomePage.create(context),
           SignInPage.id: (context) => SignInPage(),
         },
-        initialRoute: LoadingPage.id,
+        initialRoute: HomePage.id,
       ),
     );
   }

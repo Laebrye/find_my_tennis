@@ -47,8 +47,7 @@ class _HomePageState extends State<HomePage> {
   List<Marker> _markers = [];
   List<Circle> _circles = [];
   GoogleMapsPlaces _locationPlaces = GoogleMapsPlaces(
-    apiKey:
-        Platform.isIOS ? AppSecrets.mapsIosAPIKey : AppSecrets.mapsIosAPIKey,
+    apiKey: AppSecrets.mapsWebApiKey,
   );
   ScrollController _scrollController = ScrollController();
 
@@ -56,9 +55,7 @@ class _HomePageState extends State<HomePage> {
     try {
       Prediction p = await PlacesAutocomplete.show(
           context: context,
-          apiKey: Platform.isIOS
-              ? AppSecrets.mapsIosAPIKey
-              : AppSecrets.mapsIosAPIKey,
+          apiKey: AppSecrets.mapsWebApiKey,
           mode: Mode.overlay,
           language: "en",
           location: _mapCentre == null
@@ -74,6 +71,7 @@ class _HomePageState extends State<HomePage> {
       print('changing centre on autocomplete');
       await _mapController.animateCamera(CameraUpdate.newLatLng(centre));
     } catch (e) {
+      print(e);
       return;
     }
   }
@@ -105,29 +103,31 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     final bloc = Provider.of<HomeBloc>(context);
     return Scaffold(
-        appBar: AppBar(
-          backgroundColor: Colors.transparent,
-          automaticallyImplyLeading: false,
-        ),
-        body: StreamBuilder<HomePageState>(
-            stream: bloc.homePageStateStream,
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return _buildLoading();
-              }
-              if (snapshot.connectionState == ConnectionState.active &&
-                  snapshot.hasData) {
-                return _buildContent(
-                    context: context, bloc: bloc, homePageState: snapshot.data);
-              }
-              if (!snapshot.hasData) {
-                return _buildEmpty();
-              }
-              if (snapshot.hasError) {
-                return _buildError();
-              }
+      body: StreamBuilder<HomePageState>(
+        stream: bloc.homePageStateStream,
+        initialData: HomePageState(isLoading: true),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return _buildLoading();
+          }
+          if (snapshot.connectionState == ConnectionState.active &&
+              snapshot.hasData) {
+            if (snapshot.data.isLoading == true) {
               return _buildLoading();
-            }));
+            }
+            return _buildContent(
+                context: context, bloc: bloc, homePageState: snapshot.data);
+          }
+          if (!snapshot.hasData) {
+            return _buildEmpty();
+          }
+          if (snapshot.hasError) {
+            return _buildError();
+          }
+          return _buildLoading();
+        },
+      ),
+    );
   }
 
   Widget _buildContent({
@@ -144,15 +144,20 @@ class _HomePageState extends State<HomePage> {
 
     return Column(
       children: <Widget>[
+        const SizedBox(
+          height: 24.0,
+        ),
         _buildMap(width, bloc),
         Expanded(
           child: ListView.builder(
             itemCount: tennisLocationsList.length,
             itemBuilder: (BuildContext context, int index) {
-              bool selected = tennisLocationsList[index].id ==
-                      homePageState.selectedTennisLocation.id ||
-                  tennisLocationsList[index].placesId ==
-                      homePageState.selectedTennisLocation.placesId;
+              bool selected = (tennisLocationsList[index].id != null &&
+                      tennisLocationsList[index].id ==
+                          homePageState.selectedTennisLocation?.id) ||
+                  (tennisLocationsList[index].placesId != null &&
+                      tennisLocationsList[index].placesId ==
+                          homePageState.selectedTennisLocation?.placesId);
               return TennisLocationCard(
                 onLocationTapCallBack: _animateToLocation,
                 tennisLocation: tennisLocationsList[index],
@@ -217,13 +222,15 @@ class _HomePageState extends State<HomePage> {
               onMapCreated: _onMapCreated,
               initialCameraPosition: CameraPosition(
                 target: bloc.initialPosition,
-                zoom: 11.0,
+                zoom: 13.0,
               ),
               circles: _circles != null ? Set.of(_circles) : null,
               markers: _markers != null ? Set.of(_markers) : null,
               tiltGesturesEnabled: false,
               rotateGesturesEnabled: false,
               myLocationEnabled: true,
+              zoomControlsEnabled: false,
+              minMaxZoomPreference: MinMaxZoomPreference(13.0, 13.0),
             ),
           ),
         ),
@@ -255,7 +262,11 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _buildEmpty() {}
+  Widget _buildEmpty() {
+    return Center(
+      child: CircularProgressIndicator(),
+    );
+  }
 
   Widget _buildError() {
     return Padding(

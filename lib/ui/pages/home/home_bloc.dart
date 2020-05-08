@@ -74,6 +74,22 @@ class HomeBloc {
             if (distance < 0.01) _selectedLocation = f;
           });
 
+        finalLocations.sort((TennisLocation a, TennisLocation b) {
+          double distanceA = calculateDistance(
+            a.lat,
+            a.lng,
+            mapCentre.latitude,
+            mapCentre.longitude,
+          );
+          double distanceB = calculateDistance(
+            b.lat,
+            b.lng,
+            mapCentre.latitude,
+            mapCentre.longitude,
+          );
+          return distanceA.compareTo(distanceB);
+        });
+
         return HomePageState(
           markerBitmap: markerBitmap,
           tennisLocationsList: finalLocations,
@@ -147,13 +163,15 @@ class HomePageState extends Equatable {
   final List<TennisLocation> excludedLocationsList;
   final TennisLocation selectedTennisLocation;
   final bool isUserAuthenticated;
+  final bool isLoading;
 
   HomePageState({
-    @required this.markerBitmap,
-    @required this.tennisLocationsList,
-    @required this.excludedLocationsList,
-    @required this.selectedTennisLocation,
-    @required this.isUserAuthenticated,
+    this.markerBitmap,
+    this.tennisLocationsList,
+    this.excludedLocationsList,
+    this.selectedTennisLocation,
+    this.isUserAuthenticated,
+    this.isLoading = false,
   });
 
   HomePageState copyWith({

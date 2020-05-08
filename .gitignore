@@ -94,3 +94,4 @@ build/
 /lib/utlities/app_secrets.dart
 /ios/Runner/GoogleService-Info.plist
 /android/app/google-services.json
+/ios/Runner/Constants.swift

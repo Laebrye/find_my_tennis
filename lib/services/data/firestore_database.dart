@@ -143,10 +143,15 @@ class FirestoreDatabase implements Database {
     return _service.collectionStream<TennisClub>(
       path: APIPath.tennisClubs(),
       queryBuilder: tennisLocation != null
-          ? (query) => query.where('locationId', isEqualTo: tennisLocation.id)
+          ? (query) {
+              print('building tennis club list query');
+              return query.where('locationId', isEqualTo: tennisLocation.id);
+            }
           : null,
-      builder: (data, documentID) =>
-          TennisClub.fromMap(data: data, id: documentID),
+      builder: (data, documentID) {
+        print('building tennis clubs');
+        return TennisClub.fromMap(data: data, id: documentID);
+      },
     );
   }
 
@@ -159,30 +164,33 @@ class FirestoreDatabase implements Database {
               'queryCentreSubject is null. PLease ensure a suitable Behavior Subject containing an object with Lat & Lng attributes is passed to the tennisLocationsByDistanceStream method');
     }
     return _queryCentreSubject.switchMap(
-      (LatLng value) => _geo
-          .collection(
-            collectionRef: _service.collectionReference(
-              APIPath.tennisLocations(),
-            ),
-          )
-          .within(
-            center: _geo.point(
-                latitude: value.latitude, longitude: value.longitude),
-            radius: 8.0,
-            field: 'position',
-            strictMode: true,
-          )
-          .map<List<TennisLocation>>(
-            (event) => event
-                .map<TennisLocation>(
-                  (e) => TennisLocation.fromMap(
-                    data: e.data,
-                    id: e.documentID,
-                  ),
-                )
-                .toList(),
-          )
-          .shareValue(),
+      (LatLng value) {
+        print('triggering geoquery');
+        return _geo
+            .collection(
+              collectionRef: _service.collectionReference(
+                APIPath.tennisLocations(),
+              ),
+            )
+            .within(
+              center: _geo.point(
+                  latitude: value.latitude, longitude: value.longitude),
+              radius: 8.0,
+              field: 'position',
+              strictMode: true,
+            )
+            .map<List<TennisLocation>>(
+              (event) => event
+                  .map<TennisLocation>(
+                    (e) => TennisLocation.fromMap(
+                      data: e.data,
+                      id: e.documentID,
+                    ),
+                  )
+                  .toList(),
+            )
+            .shareValue();
+      },
     );
   }
 }

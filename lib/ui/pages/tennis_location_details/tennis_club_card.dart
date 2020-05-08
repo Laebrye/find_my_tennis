@@ -1,10 +1,10 @@
 import 'package:find_my_tennis/services/data/models/tennis_club.dart';
 import 'package:flutter/material.dart';
 
-class TennisLocationCard extends StatelessWidget {
+class TennisClubCard extends StatelessWidget {
   final TennisClub tennisClub;
 
-  const TennisLocationCard({
+  const TennisClubCard({
     Key key,
     @required this.tennisClub,
   }) : super(key: key);

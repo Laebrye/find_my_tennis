@@ -49,11 +49,22 @@ class TennisLocationCard extends StatelessWidget {
                     ),
                   ),
                 ),
+                const SizedBox(
+                  width: 6.0,
+                ),
                 Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
-                    Text(tennisLocation.numberOfClubs?.toString() ?? '0'),
+                    Text(
+                      tennisLocation.numberOfClubs?.toString() ?? '0',
+                      style: TextStyle(
+                          fontWeight: FontWeight.bold, fontSize: 16.0),
+                    ),
                     Text('clubs'),
                   ],
+                ),
+                const SizedBox(
+                  width: 6.0,
                 ),
                 IconButton(
                   icon: Icon(

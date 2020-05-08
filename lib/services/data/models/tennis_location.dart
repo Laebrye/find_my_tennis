@@ -52,6 +52,7 @@ class TennisLocation extends Equatable {
       lat: place.geometry.location.lat,
       lng: place.geometry.location.lng,
       name: place.name,
+      placesId: place.id,
     );
   }
 

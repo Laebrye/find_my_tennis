@@ -3,11 +3,14 @@ import 'dart:typed_data';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:rxdart/rxdart.dart';
 
 class MarkerProvider {
-  MarkerProvider._(this.context);
+  MarkerProvider._(this.context) {
+    createBitmap();
+  }
 
   factory MarkerProvider.instance(BuildContext context) =>
       MarkerProvider._(context);
@@ -33,18 +36,19 @@ class MarkerProvider {
         Completer<BitmapDescriptor>();
     final ImageConfiguration config = createLocalImageConfiguration(context);
 
-    const AssetImage('assets/images/MapMarker.png').resolve(config).addListener(
-      ImageStreamListener(
-        (ImageInfo image, bool sync) async {
-          final ByteData bytes =
-              await image.image.toByteData(format: ImageByteFormat.png);
-          final BitmapDescriptor bitmap =
-              BitmapDescriptor.fromBytes(bytes.buffer.asUint8List());
-          bitmapIcon.complete(bitmap);
-        },
-      ),
-    );
+    final Uint8List markerIcon =
+        await getBytesFromAsset('assets/images/MapMarker.png', 50);
 
-    return await bitmapIcon.future;
+    return BitmapDescriptor.fromBytes(markerIcon);
+  }
+
+  Future<Uint8List> getBytesFromAsset(String path, int width) async {
+    ByteData data = await rootBundle.load(path);
+    Codec codec = await instantiateImageCodec(data.buffer.asUint8List(),
+        targetWidth: width);
+    FrameInfo fi = await codec.getNextFrame();
+    return (await fi.image.toByteData(format: ImageByteFormat.png))
+        .buffer
+        .asUint8List();
   }
 }

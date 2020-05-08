@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:find_my_tennis/utlities/app_secrets.dart';
 import 'package:flutter/foundation.dart';
@@ -23,24 +22,38 @@ class TennisPlacesRepository {
       _placesSearchResultSubject.stream;
 
   final GoogleMapsPlaces _googleMapsPlaces = GoogleMapsPlaces(
-    apiKey: Platform.isIOS
-        ? AppSecrets.mapsIosAPIKey
-        : AppSecrets.mapsAndroidAPIKey,
+    apiKey: AppSecrets.mapsWebApiKey,
   );
 
+//  final GoogleMapsPlaces _googleMapsPlaces = GoogleMapsPlaces(
+//    apiKey: Platform.isIOS
+//        ? AppSecrets.mapsIosAPIKey
+//        : AppSecrets.mapsAndroidAPIKey,
+//  );
+
   void updateCentre({@required LatLng centre}) async {
-    _placesSearchResultSubject.add(await getTennisCourtPlaces(centre));
+    if (centre != null) {
+      _placesSearchResultSubject.add(await getTennisCourtPlaces(centre));
+    }
   }
 
   Future<List<PlacesSearchResult>> getTennisCourtPlaces(LatLng centre) async {
     PlacesSearchResponse response =
         await _googleMapsPlaces.searchNearbyWithRadius(
       Location(centre.latitude, centre.longitude),
-      6000,
+      3000,
       keyword: 'tennis+courts',
     );
 
-    if (response.isOkay) return response.results;
+    if (!response.isOkay) {
+      print('error returning results');
+      print(response.errorMessage);
+    }
+
+    if (response.isOkay) {
+      print('places query returned ${response.results.length} tennis places');
+      return response.results;
+    }
 
     return null;
   }
