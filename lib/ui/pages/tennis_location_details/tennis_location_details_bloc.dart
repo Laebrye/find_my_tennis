@@ -46,6 +46,8 @@ class TennisLocationDetailsBloc {
   Stream<TennisLocationDetailsModel> _tennisLocationDetailsModelStream;
   Stream<TennisLocationDetailsModel> get tennisLocationDetailsModelStream =>
       _tennisLocationDetailsModelStream;
+
+  Future<void> addTennisCLub() {}
 }
 
 class TennisLocationDetailsModel {

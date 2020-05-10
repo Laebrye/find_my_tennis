@@ -26,6 +26,9 @@ class TennisLocationDetailsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final bloc = Provider.of<TennisLocationDetailsBloc>(context);
     return Scaffold(
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {},
+      ),
       body: StreamBuilder<TennisLocationDetailsModel>(
         stream: bloc.tennisLocationDetailsModelStream,
         initialData: TennisLocationDetailsModel(isLoading: true),
