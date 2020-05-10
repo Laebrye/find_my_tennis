@@ -70,7 +70,7 @@ class HomeBloc {
         if (finalLocations.isNotEmpty)
           finalLocations.forEach((f) {
             double distance = calculateDistance(
-                f.lat, f.lng, mapCentre.latitude, mapCentre.longitude);
+                f.lat, f.lng, mapCentre?.latitude, mapCentre?.longitude);
             if (distance < 0.01) _selectedLocation = f;
           });
 
@@ -78,14 +78,14 @@ class HomeBloc {
           double distanceA = calculateDistance(
             a.lat,
             a.lng,
-            mapCentre.latitude,
-            mapCentre.longitude,
+            mapCentre?.latitude,
+            mapCentre?.longitude,
           );
           double distanceB = calculateDistance(
             b.lat,
             b.lng,
-            mapCentre.latitude,
-            mapCentre.longitude,
+            mapCentre?.latitude,
+            mapCentre?.longitude,
           );
           return distanceA.compareTo(distanceB);
         });
@@ -113,9 +113,11 @@ class HomeBloc {
   Stream<HomePageState> homePageStateStream;
 
   void updateMapCentre(LatLng newCentre) {
-    database.updateQueryCentre(newCentre: newCentre);
-    placesRepository.updateCentre(centre: newCentre);
-    _mapCentreSubject.add(newCentre);
+    if (newCentre != null) {
+      database.updateQueryCentre(newCentre: newCentre);
+      placesRepository.updateCentre(centre: newCentre);
+      _mapCentreSubject.add(newCentre);
+    }
   }
 
   Future<void> removeLocation({

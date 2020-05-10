@@ -14,6 +14,7 @@ class TennisLocationDetailsPage extends StatelessWidget {
       create: (_) => TennisLocationDetailsBloc(
         database: database,
         auth: auth,
+        tennisLocation: tennisLocation,
       ),
       child: TennisLocationDetailsPage(),
     );

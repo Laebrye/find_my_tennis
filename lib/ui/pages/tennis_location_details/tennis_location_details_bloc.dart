@@ -13,9 +13,15 @@ class TennisLocationDetailsBloc {
   }) {
     _isUserAuthenticatedStream =
         auth.onAuthStateChanged.map((user) => user != null);
+    _isUserAuthenticatedStream.listen((event) {
+      print('user auth stream emitted');
+    });
     _tennisClubListStream =
         database.tennisClubsListStream(tennisLocation: tennisLocation);
-    Rx.combineLatest2(
+    _tennisClubListStream.listen((event) {
+      print('clubs stream emitted');
+    });
+    _tennisLocationDetailsModelStream = Rx.combineLatest2(
       _isUserAuthenticatedStream,
       _tennisClubListStream,
       (

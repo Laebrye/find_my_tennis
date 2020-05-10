@@ -89,8 +89,14 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Future<void> _navigateToLocationDetails(BuildContext context) async {
-    await Navigator.of(context).pushNamed(TennisLocationDetailsPage.id);
+  Future<void> _navigateToLocationDetails({
+    @required BuildContext context,
+    @required TennisLocation tennisLocation,
+  }) async {
+    await Navigator.of(context).pushNamed(
+      TennisLocationDetailsPage.id,
+      arguments: tennisLocation,
+    );
   }
 
   Future<void> _onMapCreated(GoogleMapController controller) async {
@@ -162,7 +168,10 @@ class _HomePageState extends State<HomePage> {
                 onLocationTapCallBack: _animateToLocation,
                 tennisLocation: tennisLocationsList[index],
                 isSelected: selected,
-                onTapCallback: () => _navigateToLocationDetails(context),
+                onTapCallback: () => _navigateToLocationDetails(
+                  context: context,
+                  tennisLocation: tennisLocationsList[index],
+                ),
               );
             },
             shrinkWrap: true,

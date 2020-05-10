@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
+import 'package:rxdart/rxdart.dart';
 
 class FirestoreService {
   FirestoreService._();
@@ -37,7 +38,10 @@ class FirestoreService {
     @required String path,
     @required T builder(Map<String, dynamic> data, String documentID),
     Query queryBuilder(Query query),
-    int sort(T lhs, T rhs),
+    int sort(
+      T lhs,
+      T rhs,
+    ),
   }) {
     Query query = Firestore.instance.collection(path);
     if (queryBuilder != null) {
@@ -53,7 +57,7 @@ class FirestoreService {
         result.sort(sort);
       }
       return result;
-    });
+    }).shareValue();
   }
 
   Stream<T> documentStream<T>({

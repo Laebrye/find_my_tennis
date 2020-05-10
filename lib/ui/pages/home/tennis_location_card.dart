@@ -21,7 +21,7 @@ class TennisLocationCard extends StatelessWidget {
     return Padding(
       padding: EdgeInsets.only(top: 4.0, bottom: 4.0, left: 8.0, right: 8.0),
       child: GestureDetector(
-        onTap: () => onTapCallback,
+        onTap: () => onTapCallback(),
         child: Card(
           elevation: isSelected ? 6.0 : 3.0,
           shape: RoundedRectangleBorder(

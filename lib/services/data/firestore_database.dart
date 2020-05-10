@@ -128,31 +128,36 @@ class FirestoreDatabase implements Database {
 
   @override
   Stream<List<TennisLocation>> tennisLocationsListStream() {
-    return _service.collectionStream(
-      path: APIPath.tennisLocations(),
-      builder: (data, documentId) => TennisLocation.fromMap(
-        data: data,
-        id: documentId,
-      ),
-    );
+    return _service
+        .collectionStream(
+          path: APIPath.tennisLocations(),
+          builder: (data, documentId) => TennisLocation.fromMap(
+            data: data,
+            id: documentId,
+          ),
+        )
+        .shareValue();
   }
 
   @override
   Stream<List<TennisClub>> tennisClubsListStream(
       {TennisLocation tennisLocation}) {
-    return _service.collectionStream<TennisClub>(
-      path: APIPath.tennisClubs(),
-      queryBuilder: tennisLocation != null
-          ? (query) {
-              print('building tennis club list query');
-              return query.where('locationId', isEqualTo: tennisLocation.id);
-            }
-          : null,
-      builder: (data, documentID) {
-        print('building tennis clubs');
-        return TennisClub.fromMap(data: data, id: documentID);
-      },
-    );
+    return _service
+        .collectionStream<TennisClub>(
+          path: APIPath.tennisClubs(),
+          queryBuilder: tennisLocation?.id != null
+              ? (query) {
+                  print('building tennis club list query');
+                  return query.where('locationId',
+                      isEqualTo: tennisLocation.id);
+                }
+              : null,
+          builder: (data, documentID) {
+            print('building tennis clubs');
+            return TennisClub.fromMap(data: data, id: documentID);
+          },
+        )
+        .shareValue();
   }
 
   @override
@@ -161,7 +166,7 @@ class FirestoreDatabase implements Database {
       throw PlatformException(
           code: 'UNKNOWN_QUERY_CENTRE',
           message:
-              'queryCentreSubject is null. PLease ensure a suitable Behavior Subject containing an object with Lat & Lng attributes is passed to the tennisLocationsByDistanceStream method');
+              'queryCentreSubject is null. Please ensure a suitable Behavior Subject containing an object with Lat & Lng attributes is passed to the tennisLocationsByDistanceStream method');
     }
     return _queryCentreSubject.switchMap(
       (LatLng value) {
