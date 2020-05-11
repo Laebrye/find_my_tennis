@@ -1,6 +1,7 @@
 import 'package:find_my_tennis/services/auth.dart';
 import 'package:find_my_tennis/services/data/firestore_database.dart';
 import 'package:find_my_tennis/services/data/models/tennis_location.dart';
+import 'package:find_my_tennis/ui/common_widgets/add_new_form.dart';
 import 'package:find_my_tennis/ui/pages/tennis_location_details/tennis_club_card.dart';
 import 'package:find_my_tennis/ui/pages/tennis_location_details/tennis_location_details_bloc.dart';
 import 'package:flutter/material.dart';
@@ -22,12 +23,21 @@ class TennisLocationDetailsPage extends StatelessWidget {
 
   static const String id = 'tennis_location_details_page';
 
+  Future<void> onFABTapped(BuildContext context) async {
+    final bloc = Provider.of<TennisLocationDetailsBloc>(context, listen: false);
+    await AddNewForm(
+      onSubmit: (String name) => bloc.addTennisCLub(name),
+      text: 'Add new Tennis Club',
+    ).show(context);
+  }
+
   @override
   Widget build(BuildContext context) {
-    final bloc = Provider.of<TennisLocationDetailsBloc>(context);
+    final bloc = Provider.of<TennisLocationDetailsBloc>(context, listen: false);
     return Scaffold(
       floatingActionButton: FloatingActionButton(
-        onPressed: () {},
+        child: Icon(Icons.add),
+        onPressed: () => onFABTapped(context),
       ),
       body: StreamBuilder<TennisLocationDetailsModel>(
         stream: bloc.tennisLocationDetailsModelStream,

@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:find_my_tennis/utlities/app_secrets.dart';
+import 'package:find_my_tennis/utlities/constants.dart';
 import 'package:flutter/foundation.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:google_maps_webservice/places.dart';
@@ -8,7 +9,7 @@ import 'package:rxdart/rxdart.dart';
 
 class TennisPlacesRepository {
   TennisPlacesRepository({
-    this.initialCentre = const LatLng(51.4183, -0.2206),
+    this.initialCentre = Constants.wimbledon,
   }) {
     updateCentre(centre: initialCentre);
   }

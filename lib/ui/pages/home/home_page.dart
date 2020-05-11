@@ -5,6 +5,7 @@ import 'package:find_my_tennis/services/auth.dart';
 import 'package:find_my_tennis/services/data/firestore_database.dart';
 import 'package:find_my_tennis/services/data/models/tennis_location.dart';
 import 'package:find_my_tennis/services/data/tennis_places_repository.dart';
+import 'package:find_my_tennis/services/location_service.dart';
 import 'package:find_my_tennis/services/marker_provider.dart';
 import 'package:find_my_tennis/ui/common_widgets/add_new_form.dart';
 import 'package:find_my_tennis/ui/common_widgets/platform_alert_dialog.dart';
@@ -13,6 +14,7 @@ import 'package:find_my_tennis/ui/pages/home/tennis_location_card.dart';
 import 'package:find_my_tennis/ui/pages/sign_in/sign_in_page.dart';
 import 'package:find_my_tennis/ui/pages/tennis_location_details/tennis_location_details_page.dart';
 import 'package:find_my_tennis/utlities/app_secrets.dart';
+import 'package:find_my_tennis/utlities/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_google_places/flutter_google_places.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -20,18 +22,24 @@ import 'package:google_maps_webservice/places.dart';
 import 'package:provider/provider.dart';
 
 class HomePage extends StatefulWidget {
-  static Widget create(BuildContext context) {
+  static Widget create(
+    BuildContext context, {
+    LatLng initialPosition,
+  }) {
     final database = Provider.of<Database>(context, listen: false);
     final placesRepository =
         Provider.of<TennisPlacesRepository>(context, listen: false);
     final markerProvider = Provider.of<MarkerProvider>(context, listen: false);
     final auth = Provider.of<AuthBase>(context);
+    final locationService =
+        Provider.of<LocationService>(context, listen: false);
     return Provider<HomeBloc>(
       create: (_) => HomeBloc(
         database: database,
         placesRepository: placesRepository,
         markerProvider: markerProvider,
         auth: auth,
+        locationService: locationService,
       ),
       child: HomePage(),
     );
@@ -293,7 +301,7 @@ class _HomePageState extends State<HomePage> {
               },
               onMapCreated: _onMapCreated,
               initialCameraPosition: CameraPosition(
-                target: _bloc.initialPosition,
+                target: homePageState.initialPosition ?? Constants.wimbledon,
                 zoom: 13.0,
               ),
               circles: _circles != null ? Set.of(_circles) : null,

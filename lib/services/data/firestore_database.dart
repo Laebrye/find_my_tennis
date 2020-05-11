@@ -4,6 +4,7 @@ import 'package:find_my_tennis/services/data/firestore_service.dart';
 import 'package:find_my_tennis/services/data/models/tennis_club.dart';
 import 'package:find_my_tennis/services/data/models/tennis_location.dart';
 import 'package:find_my_tennis/utlities/api_path.dart';
+import 'package:find_my_tennis/utlities/constants.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:geoflutterfire/geoflutterfire.dart';
@@ -28,7 +29,7 @@ class FirestoreDatabase implements Database {
   FirestoreDatabase();
 
   final BehaviorSubject<LatLng> _queryCentreSubject = BehaviorSubject.seeded(
-    LatLng(51.4183, -0.2206),
+    Constants.wimbledon,
   );
 
   final FirestoreService _service = FirestoreService.instance;

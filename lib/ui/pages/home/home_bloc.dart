@@ -6,7 +6,9 @@ import 'package:find_my_tennis/services/auth.dart';
 import 'package:find_my_tennis/services/data/firestore_database.dart';
 import 'package:find_my_tennis/services/data/models/tennis_location.dart';
 import 'package:find_my_tennis/services/data/tennis_places_repository.dart';
+import 'package:find_my_tennis/services/location_service.dart';
 import 'package:find_my_tennis/services/marker_provider.dart';
+import 'package:find_my_tennis/utlities/constants.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -19,24 +21,27 @@ class HomeBloc {
     @required this.database,
     @required this.placesRepository,
     @required this.markerProvider,
-    this.initialPosition = const LatLng(51.4183, -0.2206),
+    @required this.locationService,
+    this.initialPosition = Constants.wimbledon,
   }) {
     _mapCentreSubject = BehaviorSubject<LatLng>.seeded(initialPosition);
     _tennisLocationsListStream = database.tennisLocationsByDistanceStream();
     _tennisPlaces = placesRepository.placesSearchResultStream;
     _markerStream = markerProvider.markerBitmapStream;
-    homePageStateStream = Rx.combineLatest5(
+    homePageStateStream = Rx.combineLatest6(
       _tennisLocationsListStream,
       _tennisPlaces,
       _markerStream,
       _mapCentreSubject.stream,
       auth.onAuthStateChanged,
+      Stream.fromFuture(locationService.getUserLocation()),
       (
         List<TennisLocation> tennisLocations,
         List<PlacesSearchResult> placesSearchResults,
         BitmapDescriptor markerBitmap,
         LatLng mapCentre,
         User user,
+        LatLng initialPosition,
       ) {
         // create a locations list with only the visible locations in it
         List<TennisLocation> finalLocations = tennisLocations
@@ -96,6 +101,7 @@ class HomeBloc {
           tennisLocationsList: finalLocations,
           excludedLocationsList: exludedLocations,
           selectedTennisLocation: _selectedLocation,
+          initialPosition: initialPosition,
           isUserAuthenticated: user != null,
         );
       },
@@ -105,6 +111,7 @@ class HomeBloc {
   final Database database;
   final TennisPlacesRepository placesRepository;
   final MarkerProvider markerProvider;
+  final LocationService locationService;
   BehaviorSubject<LatLng> _mapCentreSubject;
   final LatLng initialPosition;
 
@@ -182,6 +189,7 @@ class HomePageState extends Equatable {
   final List<TennisLocation> tennisLocationsList;
   final List<TennisLocation> excludedLocationsList;
   final TennisLocation selectedTennisLocation;
+  final LatLng initialPosition;
   final bool isUserAuthenticated;
   final bool isLoading;
 
@@ -190,6 +198,7 @@ class HomePageState extends Equatable {
     this.tennisLocationsList,
     this.excludedLocationsList,
     this.selectedTennisLocation,
+    this.initialPosition,
     this.isUserAuthenticated,
     this.isLoading = false,
   });
@@ -199,6 +208,7 @@ class HomePageState extends Equatable {
     List<TennisLocation> tennisLocationsList,
     List<TennisLocation> excludedLocationsList,
     TennisLocation selectedLocation,
+    LatLng initialPosition,
     bool clearLocation,
     bool isUserAuthenticated,
   }) {
@@ -210,6 +220,7 @@ class HomePageState extends Equatable {
       selectedTennisLocation: (clearLocation == true)
           ? null
           : selectedLocation ?? this.selectedTennisLocation,
+      initialPosition: initialPosition ?? this.initialPosition,
       isUserAuthenticated: isUserAuthenticated ?? this.isUserAuthenticated,
     );
   }

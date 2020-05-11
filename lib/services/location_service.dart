@@ -1,4 +1,5 @@
 import 'package:find_my_tennis/services/permissions_service.dart';
+import 'package:find_my_tennis/utlities/constants.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
 
@@ -22,6 +23,6 @@ class LocationService {
       return lastReturnedLocation;
     } else
       //return wimbledon as the location
-      return LatLng(51.4183, -0.2206);
+      return Constants.wimbledon;
   }
 }
