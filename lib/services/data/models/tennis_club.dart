@@ -10,7 +10,7 @@ class TennisClub extends Equatable {
   final String locationId;
 
   TennisClub({
-    @required this.id,
+    this.id,
     @required this.name,
     @required this.locationId,
   });

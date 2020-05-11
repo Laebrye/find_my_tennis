@@ -3,6 +3,7 @@ import 'package:find_my_tennis/services/data/firestore_database.dart';
 import 'package:find_my_tennis/services/data/models/tennis_club.dart';
 import 'package:find_my_tennis/services/data/models/tennis_location.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import 'package:rxdart/rxdart.dart';
 
 class TennisLocationDetailsBloc {
@@ -47,7 +48,38 @@ class TennisLocationDetailsBloc {
   Stream<TennisLocationDetailsModel> get tennisLocationDetailsModelStream =>
       _tennisLocationDetailsModelStream;
 
-  Future<void> addTennisCLub() {}
+  Future<void> addTennisCLub(String clubName) async {
+    String locationId;
+    final userId = (await auth.currentUser())?.uid;
+    try {
+      if (tennisLocation?.id == null) {
+        locationId = await database.addTennisLocation(
+          tennisLocation,
+          userId,
+        );
+      } else {
+        locationId = tennisLocation.id;
+      }
+
+      await database.addTennisClub(
+        TennisClub(
+          name: clubName,
+          locationId: locationId,
+        ),
+        userId,
+      );
+    } on PlatformException catch (e) {
+      print(e);
+    }
+  }
+
+  Future<void> removeTennisClub(TennisClub tennisClub) async {
+    try {
+      database.deleteTennisClub(tennisClub);
+    } on PlatformException catch (e) {
+      print(e);
+    }
+  }
 }
 
 class TennisLocationDetailsModel {

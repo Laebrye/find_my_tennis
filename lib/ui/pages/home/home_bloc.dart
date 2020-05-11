@@ -8,6 +8,7 @@ import 'package:find_my_tennis/services/data/models/tennis_location.dart';
 import 'package:find_my_tennis/services/data/tennis_places_repository.dart';
 import 'package:find_my_tennis/services/marker_provider.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:google_maps_webservice/places.dart';
 import 'package:rxdart/rxdart.dart';
@@ -123,9 +124,10 @@ class HomeBloc {
   Future<void> removeLocation({
     @required TennisLocation tennisLocation,
   }) async {
-    if (await auth.currentUser() != null) {
+    final userId = (await auth.currentUser())?.uid;
+    if (userId != null) {
       tennisLocation = tennisLocation.copyWith(isVisible: false);
-      database.setTennisLocation(tennisLocation);
+      database.setTennisLocation(tennisLocation, userId);
     }
   }
 
@@ -134,14 +136,21 @@ class HomeBloc {
     @required double lng,
     @required String name,
   }) async {
-    if (await auth.currentUser() != null) {
-      TennisLocation newLocation = TennisLocation(
-        lat: lat,
-        lng: lng,
-        name: name,
-        isVisible: true,
-      );
-      database.addTennisLocation(newLocation);
+    try {
+      final userId = (await auth.currentUser())?.uid;
+      if (userId != null) {
+        TennisLocation newLocation = TennisLocation(
+          lat: lat,
+          lng: lng,
+          name: name,
+          isVisible: true,
+          numberOfClubs: 0,
+          updatedByUser: userId,
+        );
+        database.setTennisLocation(newLocation, userId);
+      }
+    } on PlatformException catch (e) {
+      print(e);
     }
   }
 
@@ -156,6 +165,15 @@ class HomeBloc {
 
   void dispose() {
     _mapCentreSubject.close();
+  }
+
+  Future<void> updateTennisLocation(TennisLocation tennisLocation) async {
+    try {
+      final userId = (await auth.currentUser())?.uid;
+      database.setTennisLocation(tennisLocation, userId);
+    } on PlatformException catch (e) {
+      print(e);
+    }
   }
 }
 

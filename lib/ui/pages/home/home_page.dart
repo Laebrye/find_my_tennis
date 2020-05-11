@@ -6,8 +6,11 @@ import 'package:find_my_tennis/services/data/firestore_database.dart';
 import 'package:find_my_tennis/services/data/models/tennis_location.dart';
 import 'package:find_my_tennis/services/data/tennis_places_repository.dart';
 import 'package:find_my_tennis/services/marker_provider.dart';
+import 'package:find_my_tennis/ui/common_widgets/add_new_form.dart';
+import 'package:find_my_tennis/ui/common_widgets/platform_alert_dialog.dart';
 import 'package:find_my_tennis/ui/pages/home/home_bloc.dart';
 import 'package:find_my_tennis/ui/pages/home/tennis_location_card.dart';
+import 'package:find_my_tennis/ui/pages/sign_in/sign_in_page.dart';
 import 'package:find_my_tennis/ui/pages/tennis_location_details/tennis_location_details_page.dart';
 import 'package:find_my_tennis/utlities/app_secrets.dart';
 import 'package:flutter/material.dart';
@@ -50,6 +53,8 @@ class _HomePageState extends State<HomePage> {
     apiKey: AppSecrets.mapsWebApiKey,
   );
   ScrollController _scrollController = ScrollController();
+  LatLng _tappedPoint;
+  HomeBloc _bloc;
 
   Future<void> _search() async {
     try {
@@ -73,6 +78,46 @@ class _HomePageState extends State<HomePage> {
     } catch (e) {
       print(e);
       return;
+    }
+  }
+
+  Future<void> addNewLocation(String newLocationName) async {
+    _bloc.addLocation(
+      lat: _tappedPoint.latitude,
+      lng: _tappedPoint.longitude,
+      name: newLocationName,
+    );
+  }
+
+  void _navigateToSignIn() {
+    Navigator.of(context).pushNamed(SignInPage.id);
+  }
+
+  Future<void> _onMapTap(LatLng point, HomePageState homePageState) async {
+    _tappedPoint = point;
+    bool foundLocation = false;
+    await homePageState.excludedLocationsList.forEach((location) async {
+      if (_bloc.calculateDistance(
+              point.latitude, point.longitude, location.lat, location.lng) <
+          0.1) {
+        foundLocation = true;
+        bool reinstate = await PlatformAlertDialog(
+          title: 'Location found',
+          content:
+              'This location is already in the database as ${location.name}. Would you like to reinstate it?',
+          defaultActionText: 'Yes',
+        ).show(context);
+        if (reinstate) {
+          final tennisLocation = location.copyWith(isVisible: true);
+          _bloc.updateTennisLocation(tennisLocation);
+        }
+      }
+    });
+    if (foundLocation == false) {
+      await AddNewForm(
+        text: 'Add new Tennis Location',
+        onSubmit: addNewLocation,
+      ).show(context);
     }
   }
 
@@ -107,10 +152,10 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    final bloc = Provider.of<HomeBloc>(context);
+    _bloc = Provider.of<HomeBloc>(context);
     return Scaffold(
       body: StreamBuilder<HomePageState>(
-        stream: bloc.homePageStateStream,
+        stream: _bloc.homePageStateStream,
         initialData: HomePageState(isLoading: true),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
@@ -122,7 +167,7 @@ class _HomePageState extends State<HomePage> {
               return _buildLoading();
             }
             return _buildContent(
-                context: context, bloc: bloc, homePageState: snapshot.data);
+                context: context, homePageState: snapshot.data);
           }
           if (!snapshot.hasData) {
             return _buildEmpty();
@@ -138,11 +183,11 @@ class _HomePageState extends State<HomePage> {
 
   Widget _buildContent({
     BuildContext context,
-    HomeBloc bloc,
     HomePageState homePageState,
   }) {
     final tennisLocationsList = homePageState.tennisLocationsList;
-    final width = MediaQuery.of(context).size.width;
+    final mapHeight = 250.0;
+    //MediaQuery.of(context).size.width;
 
     _buildSelectedCircle(homePageState, context);
 
@@ -153,7 +198,20 @@ class _HomePageState extends State<HomePage> {
         const SizedBox(
           height: 24.0,
         ),
-        _buildMap(width, bloc),
+        _buildMap(mapHeight, homePageState),
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Text(
+            homePageState.isUserAuthenticated
+                ? 'Tap on the map to add a location'
+                : 'You\'re not logged in.\nTap on the map to login',
+            style: TextStyle(
+              fontWeight: FontWeight.w600,
+              color: Theme.of(context).primaryColorDark,
+              fontSize: 18.0,
+            ),
+          ),
+        ),
         Expanded(
           child: ListView.builder(
             itemCount: tennisLocationsList.length,
@@ -214,7 +272,7 @@ class _HomePageState extends State<HomePage> {
     }).toList();
   }
 
-  Stack _buildMap(double width, HomeBloc bloc) {
+  Stack _buildMap(double width, HomePageState homePageState) {
     return Stack(
       children: <Widget>[
         Align(
@@ -222,15 +280,20 @@ class _HomePageState extends State<HomePage> {
           child: Container(
             height: width,
             child: GoogleMap(
+              onTap: homePageState.isUserAuthenticated
+                  ? (point) {
+                      _onMapTap(point, homePageState);
+                    }
+                  : (_) => _navigateToSignIn(),
               onCameraMove: (CameraPosition position) {
                 _mapCentre = position.target;
               },
               onCameraIdle: () async {
-                bloc.updateMapCentre(_mapCentre);
+                _bloc.updateMapCentre(_mapCentre);
               },
               onMapCreated: _onMapCreated,
               initialCameraPosition: CameraPosition(
-                target: bloc.initialPosition,
+                target: _bloc.initialPosition,
                 zoom: 13.0,
               ),
               circles: _circles != null ? Set.of(_circles) : null,

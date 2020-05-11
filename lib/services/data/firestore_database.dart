@@ -11,20 +11,21 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:rxdart/rxdart.dart';
 
 abstract class Database {
-  Future<String> addTennisLocation(TennisLocation tennisLocation);
-  Future<void> setTennisLocation(TennisLocation tennisLocation, {bool merge});
-  Future<String> addTennisClub(TennisClub tennisClub);
-  Future<void> setTennisClub(TennisClub tennisClub, {bool merge});
+  Future<String> addTennisLocation(TennisLocation tennisLocation, String uid);
+  Future<void> setTennisLocation(TennisLocation tennisLocation, String uid,
+      {bool merge});
+  Future<String> addTennisClub(TennisClub tennisClub, String uid);
+  Future<void> setTennisClub(TennisClub tennisClub, String uid, {bool merge});
   Stream<List<TennisLocation>> tennisLocationsListStream();
   Stream<List<TennisLocation>> tennisLocationsByDistanceStream();
   Stream<List<TennisClub>> tennisClubsListStream(
       {TennisLocation tennisLocation});
   void updateQueryCentre({LatLng newCentre});
+  Future<void> deleteTennisClub(TennisClub tennisClub);
 }
 
 class FirestoreDatabase implements Database {
-  FirestoreDatabase({this.uid});
-  final String uid;
+  FirestoreDatabase();
 
   final BehaviorSubject<LatLng> _queryCentreSubject = BehaviorSubject.seeded(
     LatLng(51.4183, -0.2206),
@@ -45,7 +46,7 @@ class FirestoreDatabase implements Database {
   }
 
   @override
-  Future<String> addTennisClub(TennisClub tennisClub) {
+  Future<String> addTennisClub(TennisClub tennisClub, String uid) {
     if (uid == null) {
       throw PlatformException(
         code: 'ADD_CLUB_INVALID_USER',
@@ -59,7 +60,7 @@ class FirestoreDatabase implements Database {
   }
 
   @override
-  Future<String> addTennisLocation(TennisLocation tennisLocation) {
+  Future<String> addTennisLocation(TennisLocation tennisLocation, String uid) {
     if (uid == null) {
       throw PlatformException(
         code: 'ADD_LOCATION_INVALID_USER',
@@ -73,7 +74,7 @@ class FirestoreDatabase implements Database {
   }
 
   @override
-  Future<void> setTennisClub(TennisClub tennisClub, {bool merge}) {
+  Future<void> setTennisClub(TennisClub tennisClub, String uid, {bool merge}) {
     if (uid == null) {
       String throwAction = merge == true ? updateAction : overwriteAction;
       throw PlatformException(
@@ -95,7 +96,8 @@ class FirestoreDatabase implements Database {
 
   @override
   Future<void> setTennisLocation(
-    TennisLocation tennisLocation, {
+    TennisLocation tennisLocation,
+    String uid, {
     bool merge = false,
   }) {
     if (uid == null) {
@@ -116,7 +118,7 @@ class FirestoreDatabase implements Database {
     if (tennisLocation.id == null) {
       return _service.addData(
         collectionPath: APIPath.tennisLocations(),
-        data: tennisLocation.toMap(),
+        data: data,
       );
     }
     return _service.setData(
@@ -196,6 +198,13 @@ class FirestoreDatabase implements Database {
             )
             .shareValue();
       },
+    );
+  }
+
+  @override
+  Future<void> deleteTennisClub(TennisClub tennisClub) async {
+    _service.deleteData(
+      path: APIPath.tennisClub(tennisClub.id),
     );
   }
 }
