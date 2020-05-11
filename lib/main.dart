@@ -6,7 +6,6 @@ import 'package:find_my_tennis/services/location_service.dart';
 import 'package:find_my_tennis/services/marker_provider.dart';
 import 'package:find_my_tennis/services/permissions_service.dart';
 import 'package:find_my_tennis/ui/pages/home/home_page.dart';
-import 'package:find_my_tennis/ui/pages/loading_page.dart';
 import 'package:find_my_tennis/ui/pages/sign_in/sign_in_page.dart';
 import 'package:find_my_tennis/ui/pages/tennis_location_details/tennis_location_details_page.dart';
 import 'package:flutter/material.dart';
@@ -48,7 +47,6 @@ class MyApp extends StatelessWidget {
       child: MaterialApp(
         title: 'Find My Tennis',
         routes: {
-          LoadingPage.id: (context) => LoadingPage(),
           HomePage.id: (context) => HomePage.create(context),
           SignInPage.id: (context) => SignInPage(),
         },
