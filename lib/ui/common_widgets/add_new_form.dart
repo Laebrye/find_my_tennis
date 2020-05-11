@@ -17,6 +17,7 @@ class AddNewForm extends StatefulWidget {
 
 class _AddNewFormState extends State<AddNewForm> {
   final TextEditingController _controller = TextEditingController();
+  bool _submitInProgress = false;
 
   Future<bool> show(BuildContext context) {
     return showModalBottomSheet(
@@ -43,6 +44,7 @@ class _AddNewFormState extends State<AddNewForm> {
             height: 8.0,
           ),
           TextField(
+            enabled: !_submitInProgress,
             controller: _controller,
             style: TextStyle(fontWeight: FontWeight.w600, fontSize: 20),
             decoration: InputDecoration(
@@ -60,20 +62,58 @@ class _AddNewFormState extends State<AddNewForm> {
                   Icons.clear,
                   color: Theme.of(context).primaryColorDark,
                 ),
-                onPressed: () {
-                  Navigator.of(context).pop(false);
-                },
+                onPressed: _submitInProgress
+                    ? null
+                    : () {
+                        Navigator.of(context).pop(false);
+                      },
               ),
               const SizedBox(
-                width: 34.0,
+                width: 32.0,
               ),
               Expanded(
                 child: RaisedButton(
-                  onPressed: () async {
-                    await widget.onSubmit();
-                    Navigator.of(context).pop(true);
-                  },
-                  child: Text('SUBMIT'),
+                  color: Theme.of(context).primaryColor,
+                  onPressed: _submitInProgress
+                      ? null
+                      : () async {
+                          setState(() {
+                            _submitInProgress = true;
+                          });
+                          await widget.onSubmit();
+                          setState(() {
+                            _submitInProgress = false;
+                          });
+                          Navigator.of(context).pop(true);
+                        },
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      Container(
+                        width: 36,
+                        height: 36,
+                        child: _submitInProgress
+                            ? CircularProgressIndicator()
+                            : Container(),
+                      ),
+                      const SizedBox(width: 12),
+                      Text(
+                        'SUBMIT',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 1.5,
+                        ),
+                      ),
+                      const SizedBox(
+                        width: 12,
+                      ),
+                      Container(
+                        width: 36,
+                        height: 36,
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ],
