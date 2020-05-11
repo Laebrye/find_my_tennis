@@ -3,8 +3,13 @@ import 'package:flutter/material.dart';
 
 class AddNewForm extends StatefulWidget {
   final String text;
+  final Future<void> Function() onSubmit;
 
-  const AddNewForm({Key key, this.text}) : super(key: key);
+  const AddNewForm({
+    Key key,
+    @required this.text,
+    @required this.onSubmit,
+  }) : super(key: key);
 
   @override
   _AddNewFormState createState() => _AddNewFormState();
@@ -21,17 +26,25 @@ class _AddNewFormState extends State<AddNewForm> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.all(16.0),
+      padding: EdgeInsets.all(14.0),
       child: Column(
         mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
-          // TODO: format this
-          Text(widget.text),
+          Text(
+            widget.text,
+            style: TextStyle(
+              color: Theme.of(context).primaryColorDark,
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
           const SizedBox(
             height: 8.0,
           ),
           TextField(
             controller: _controller,
+            style: TextStyle(fontWeight: FontWeight.w600, fontSize: 20),
             decoration: InputDecoration(
               labelText: 'Name',
               hintText: 'Enter a name',
@@ -40,11 +53,30 @@ class _AddNewFormState extends State<AddNewForm> {
           const SizedBox(
             height: 8.0,
           ),
-          RaisedButton(
-            onPressed: () {
-              //TODO: implement this callback
-            },
-            child: Text('SUBMIT'),
+          Row(
+            children: <Widget>[
+              IconButton(
+                icon: Icon(
+                  Icons.clear,
+                  color: Theme.of(context).primaryColorDark,
+                ),
+                onPressed: () {
+                  Navigator.of(context).pop(false);
+                },
+              ),
+              const SizedBox(
+                width: 34.0,
+              ),
+              Expanded(
+                child: RaisedButton(
+                  onPressed: () async {
+                    await widget.onSubmit();
+                    Navigator.of(context).pop(true);
+                  },
+                  child: Text('SUBMIT'),
+                ),
+              ),
+            ],
           ),
         ],
       ),
