@@ -1,16 +1,13 @@
 # find_my_tennis
 
-A new Flutter project.
+A new Flutter project that uses google maps integration to help users find tennis courts and clubs near them and around the world.
 
 ## Getting Started
 
-This project is a starting point for a Flutter application.
+This project has deliberately excluded some crucial files in order to make it work. These include:
 
-A few resources to get you started if this is your first Flutter project:
+lib/utlities/app_secrets.dart
+ios/Runner/Constants.swift
+android/app/src/main/res/values/strings.xml
 
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
-
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+and the necessary config files for Firebase.
