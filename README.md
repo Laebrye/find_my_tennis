@@ -7,7 +7,10 @@ A new Flutter project that uses google maps integration to help users find tenni
 This project has deliberately excluded some crucial files in order to make it work. These include:
 
 lib/utlities/app_secrets.dart
+<br>
 ios/Runner/Constants.swift
+<br>
 android/app/src/main/res/values/strings.xml
-
+<br>
+<br>
 and the necessary config files for Firebase.
