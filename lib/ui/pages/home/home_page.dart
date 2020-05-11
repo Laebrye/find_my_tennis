@@ -203,8 +203,8 @@ class _HomePageState extends State<HomePage> {
 
     return Column(
       children: <Widget>[
-        const SizedBox(
-          height: 24.0,
+        SizedBox(
+          height: MediaQuery.of(context).viewPadding.top,
         ),
         _buildMap(mapHeight, homePageState),
         Padding(
@@ -221,27 +221,31 @@ class _HomePageState extends State<HomePage> {
           ),
         ),
         Expanded(
-          child: ListView.builder(
-            itemCount: tennisLocationsList.length,
-            itemBuilder: (BuildContext context, int index) {
-              bool selected = (tennisLocationsList[index].id != null &&
-                      tennisLocationsList[index].id ==
-                          homePageState.selectedTennisLocation?.id) ||
-                  (tennisLocationsList[index].placesId != null &&
-                      tennisLocationsList[index].placesId ==
-                          homePageState.selectedTennisLocation?.placesId);
-              return TennisLocationCard(
-                onLocationTapCallBack: _animateToLocation,
-                tennisLocation: tennisLocationsList[index],
-                isSelected: selected,
-                onTapCallback: () => _navigateToLocationDetails(
-                  context: context,
+          child: MediaQuery.removePadding(
+            context: context,
+            removeTop: true,
+            child: ListView.builder(
+              itemCount: tennisLocationsList.length,
+              itemBuilder: (BuildContext context, int index) {
+                bool selected = (tennisLocationsList[index].id != null &&
+                        tennisLocationsList[index].id ==
+                            homePageState.selectedTennisLocation?.id) ||
+                    (tennisLocationsList[index].placesId != null &&
+                        tennisLocationsList[index].placesId ==
+                            homePageState.selectedTennisLocation?.placesId);
+                return TennisLocationCard(
+                  onLocationTapCallBack: _animateToLocation,
                   tennisLocation: tennisLocationsList[index],
-                ),
-              );
-            },
-            shrinkWrap: true,
-            controller: _scrollController,
+                  isSelected: selected,
+                  onTapCallback: () => _navigateToLocationDetails(
+                    context: context,
+                    tennisLocation: tennisLocationsList[index],
+                  ),
+                );
+              },
+              shrinkWrap: true,
+              controller: _scrollController,
+            ),
           ),
         ),
       ],

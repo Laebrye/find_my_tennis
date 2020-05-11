@@ -5,7 +5,8 @@ import 'package:find_my_tennis/ui/common_widgets/add_new_form.dart';
 import 'package:find_my_tennis/ui/pages/tennis_location_details/tennis_club_card.dart';
 import 'package:find_my_tennis/ui/pages/tennis_location_details/tennis_location_details_bloc.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:'
+    'provider/provider.dart';
 
 class TennisLocationDetailsPage extends StatelessWidget {
   static Widget create(BuildContext context, {TennisLocation tennisLocation}) {
